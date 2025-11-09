@@ -12,9 +12,9 @@ WIN = pygame.display.set_mode((WIN_WIDTH, WIN_HEIGHT))
 
 # Load images
 # Load and scale images
-BIRD_IMG = pygame.transform.scale(pygame.image.load(os.path.join("GUI", "bird.png")), (40, 30))
 BG_IMG = pygame.transform.scale(pygame.image.load(os.path.join("GUI", "background.jpg")).convert(), (600, 600))
-PIPE_IMG = pygame.transform.scale(pygame.image.load(os.path.join("GUI", "pipe.png")), (200, 500))
+BIRD_IMG = pygame.transform.scale(pygame.image.load(os.path.join("GUI", "bird.png")), (40, 30))
+PIPE_IMG = pygame.transform.scale(pygame.image.load(os.path.join("GUI", "pipe.png")), (100, 500))
 
 class Bird:
     MAX_ROTATION = 25
@@ -61,7 +61,7 @@ class Bird:
         win.blit(rotated_image, new_rect.topleft)
 
 class Pipe:
-    GAP = 200
+    GAP = 170
     VEL = 5
 
     def __init__(self, x):
@@ -76,7 +76,7 @@ class Pipe:
 
     def set_height(self):
         # Random vertical position for the gap
-        self.height = random.randrange(100, 400)
+        self.height = random.randrange(50, WIN_HEIGHT - 50 - self.GAP)
         self.top = self.height - self.PIPE_TOP.get_height()
         self.bottom = self.height + self.GAP
 
@@ -157,7 +157,7 @@ def main():
                 add_pipe = True
 
         if add_pipe:
-            pipes.append(Pipe(600))
+            pipes.append(Pipe(550))
         for r in rem:
             pipes.remove(r)
 
