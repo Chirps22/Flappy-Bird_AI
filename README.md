@@ -1,9 +1,10 @@
 # Flappy Bird AI
 
-This project recreates the classic Flappy Bird game and teaches an AI to play it.  
-The AI learns to navigate through pipes by evolving neural networks.
+This project trains an AI to play Flappy Bird using Proximal Policy Optimization (PPO) from Stable-Baselines3.
+It includes a custom Gym environment, model training script, and a viewer to watch your trained agent play.
+A manual version of the game is also available to play (main.py) whilst waiting for model to train.
 
 ## Current Progress
-- Game physics and environment setup
-- Next: Add pipes and collisions  
-- Future: Implement NEAT-based AI to learn and improve over time  
+- AI can play the game and pass a few pipes (video demonstration below)
+- Next: Review the model to increase AI score
+- Future: Merge manual play and AI so that you can play against a ghost version of the AI's best attempt

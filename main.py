@@ -10,8 +10,7 @@ WIN_WIDTH = 600
 WIN_HEIGHT = 600
 WIN = pygame.display.set_mode((WIN_WIDTH, WIN_HEIGHT))
 
-# Load images
-# Load and scale images
+#Load and scale images
 BG_IMG = pygame.transform.scale(pygame.image.load(os.path.join("GUI", "background.jpg")).convert(), (600, 600))
 BIRD_IMG = pygame.transform.scale(pygame.image.load(os.path.join("GUI", "bird.png")), (40, 30))
 PIPE_IMG = pygame.transform.scale(pygame.image.load(os.path.join("GUI", "pipe.png")), (100, 500))
@@ -37,7 +36,6 @@ class Bird:
 
     def move(self):
         self.tick_count += 1
-        # basic physics for gravity
         d = self.vel * self.tick_count + 1.5 * self.tick_count ** 2
 
         if d >= 16:
@@ -47,7 +45,7 @@ class Bird:
 
         self.y += d
 
-        # simple tilt animation
+        #tilt animation
         if d < 0 or self.y < self.height + 50:
             if self.tilt < self.MAX_ROTATION:
                 self.tilt = self.MAX_ROTATION
@@ -61,7 +59,7 @@ class Bird:
         win.blit(rotated_image, new_rect.topleft)
 
 class Pipe:
-    GAP = 170
+    GAP = 15
     VEL = 5
 
     def __init__(self, x):
@@ -69,13 +67,12 @@ class Pipe:
         self.height = 0
         self.top = 0
         self.bottom = 0
-        self.PIPE_BOTTOM = PIPE_IMG  # normal pipe (opening at top)
-        self.PIPE_TOP = pygame.transform.flip(PIPE_IMG, False, True)  # flipped (opening at bottom)
+        self.PIPE_BOTTOM = PIPE_IMG 
+        self.PIPE_TOP = pygame.transform.flip(PIPE_IMG, False, True) 
         self.passed = False
         self.set_height()
 
     def set_height(self):
-        # Random vertical position for the gap
         self.height = random.randrange(50, WIN_HEIGHT - 50 - self.GAP)
         self.top = self.height - self.PIPE_TOP.get_height()
         self.bottom = self.height + self.GAP
@@ -84,9 +81,7 @@ class Pipe:
         self.x -= self.VEL
 
     def draw(self, win):
-        # Draw top pipe (upside down)
         win.blit(self.PIPE_TOP, (self.x, self.top))
-        # Draw bottom pipe (normal)
         win.blit(self.PIPE_BOTTOM, (self.x, self.bottom))
 
     def collide(self, bird):
@@ -102,7 +97,7 @@ class Pipe:
 
         return b_point or t_point
 
-def draw_window(win, bird, pipes):
+def draw_window(win, bird, pipes, score, high_score):
     # Draw background
     win.blit(BG_IMG, (0, 0))
 
@@ -113,7 +108,15 @@ def draw_window(win, bird, pipes):
     # Draw bird
     bird.draw(win)
 
-    # Update display ONCE here
+    #Draw score
+    font = pygame.font.SysFont("Arial", 40, bold=True)
+    score_text = font.render(f"{score}", True, (255, 255, 255))
+    win.blit(score_text, (WIN_WIDTH // 2 - score_text.get_width() // 2, 20))
+
+    small_font = pygame.font.SysFont("Arial", 24)
+    high_score_text = small_font.render(f"High Score: {high_score}", True, (255, 255, 255))
+    win.blit(high_score_text, (10, 10))
+
     pygame.display.update()
 
 
@@ -122,6 +125,13 @@ def main():
     pipes = [Pipe(700)]
     clock = pygame.time.Clock()
     run = True
+    score = 0
+
+    try:
+        with open("highscore.txt", "r") as f:
+            high_score = int(f.read().strip())
+    except:
+        high_score = 0
 
     while run:
         clock.tick(30)
@@ -144,10 +154,8 @@ def main():
             if pipe.collide(bird):
                  run = False
             
-            if bird.y + bird.img.get_height() >= WIN_HEIGHT:
-                run = False  # hit the ground
-            elif bird.y < 0:
-                run = False  # flew too high
+            if bird.y + bird.img.get_height() >= WIN_HEIGHT or bird.y < 0:
+                run = False
 
             if pipe.x + pipe.PIPE_TOP.get_width() < 0:
                 rem.append(pipe)
@@ -155,13 +163,20 @@ def main():
             if not pipe.passed and pipe.x < bird.x:
                 pipe.passed = True
                 add_pipe = True
+                score += 1
+                # Update high score
+                if score > high_score:
+                    high_score = score
 
         if add_pipe:
             pipes.append(Pipe(550))
         for r in rem:
             pipes.remove(r)
 
-        draw_window(WIN, bird, pipes)
+        draw_window(WIN, bird, pipes, score, high_score)
+    
+    with open("highscore.txt", "w") as f:
+        f.write(str(high_score))
 
 
 if __name__ == "__main__":
